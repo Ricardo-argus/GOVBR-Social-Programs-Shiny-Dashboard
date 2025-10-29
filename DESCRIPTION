@@ -1,0 +1,25 @@
+Package: proj_golem
+Title: Dashboard de Análise de Bolsas do Prouni
+Version: 0.0.0.9000
+Author: Ricardo Hernandes
+Maintainer: Ricardo Hernandes <ricardo_shs615@outlook.com>
+Description: Um dashboard interativo para visualizar e analisar dados de bolsas do Prouni,
+    com filtros dinâmicos e visualizações de dados.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 2.10)
+Imports: 
+    shiny,
+    shinydashboard,
+    DBI,
+    RMariaDB,
+    ggplot2,
+    DT,
+    dplyr,
+    golem,
+    plotly,
+    config,
+    pool
+RoxygenNote: 7.3.3

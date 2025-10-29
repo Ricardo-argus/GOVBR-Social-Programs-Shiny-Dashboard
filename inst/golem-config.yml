@@ -1,0 +1,16 @@
+default:
+  database:
+    host: "localhost"
+    port: 3306
+    user: "root"
+    password: ""
+    dbname: "prouni_bolsas"
+
+production:
+  database:
+    host: "PROD_HOST"
+    port: 3306
+    user: "PROD_USER"
+    password: "PROD_PASSWORD"
+    dbname: "prouni_bolsas"
+
