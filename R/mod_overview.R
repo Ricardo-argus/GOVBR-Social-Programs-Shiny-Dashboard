@@ -44,6 +44,7 @@ mod_overview_ui <- function(id){
 #' @import plotly
 #' @import ggplot2
 #' @import dplyr
+#' @import magrittr
 #' @noRd
 mod_overview_server <- function(id, dados_filtrados, filtros_selecionados){
   moduleServer( id, function(input, output, session){
@@ -118,9 +119,24 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados){
         labs(title = "Distribuição por Raça/Cor\ndo Beneficiário",
              x = "", y = "Número de Bolsas") +
         theme_minimal(base_size = 14) +
-        theme(plot.title = element_text(hjust = 0.5, size = 12))
+        theme(
+          plot.title = element_text(hjust = 0.5, size = 12, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major = element_line(color = "#555555"), # Linhas de grade suaves
+          panel.grid.minor = element_blank()
+        )
 
-      plotly::ggplotly(p)
+      # ATUALIZAÇÃO: Aplicar template escuro do Plotly
+      plotly::ggplotly(p) %>%
+        plotly::layout(
+          template = "plotly_dark",
+          paper_bgcolor = "rgba(0,0,0,0)", # Fundo do papel transparente
+          plot_bgcolor = "rgba(0,0,0,0)",  # Fundo do gráfico transparente
+          legend = list(font = list(color = "white")) # Cor do texto da legenda
+        )
     })
 
     output$bolsas_por_modalidade <- plotly::renderPlotly({
@@ -136,10 +152,28 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados){
         labs(title = "Distribuição por Modalidade\nde Ensino",
              x = "Modalidade", y = "Número de Bolsas") +
         theme_minimal(base_size = 14) +
-        theme(plot.title = element_text(hjust = 0.5, size = 12))
+        theme(
+          plot.title = element_text(hjust = 0.5, size = 12, color = "white"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major.x = element_blank(), # Remover grades verticais
+          panel.grid.major.y = element_line(color = "#555555"), # Grades horizontais suaves
+          panel.grid.minor = element_blank()
+        )
 
-      plotly::ggplotly(p)
+
+      plotly::ggplotly(p) %>%
+        plotly::layout(
+          template = "plotly_dark",
+          paper_bgcolor = "rgba(0,0,0,0)", # Fundo do papel transparente
+          plot_bgcolor = "rgba(0,0,0,0)",  # Fundo do gráfico transparente
+          legend = list(font = list(color = "white")) # Cor do texto da legenda
+        )
     })
 
   })
+
 }
+

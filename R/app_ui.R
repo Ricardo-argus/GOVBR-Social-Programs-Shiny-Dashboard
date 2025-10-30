@@ -11,7 +11,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
 
     dashboardPage(
-      skin = "yellow",
+      skin = "black",
 
       dashboardHeader(
         title = tags$span(
