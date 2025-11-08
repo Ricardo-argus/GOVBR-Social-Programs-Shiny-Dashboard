@@ -29,7 +29,8 @@ app_ui <- function(request) {
         width = 400,
         sidebarMenu(
           menuItem("Visão Geral", tabName = "overview", icon = icon("dashboard")),
-          menuItem("Dados Completos", tabName = "raw_data", icon = icon("table"))
+          menuItem("Dados Completos", tabName = "raw_data", icon = icon("table")),
+          menuItem("Contato", tabName = "reports", icon = icon("envelope"))
         ),
 
         hr(),
