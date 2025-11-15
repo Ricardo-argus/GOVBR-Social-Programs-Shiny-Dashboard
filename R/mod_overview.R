@@ -11,6 +11,25 @@ mod_overview_ui <- function(id){
   tagList(
     fluidRow(
       # Todos os outputs precisam do 'ns()'
+      tabsetPanel(
+        tabPanel(
+          title = "PROUNI",
+          icon = icon("chart-line"),
+
+          DT::dataTableOutput(ns("PROUNI"))
+
+        ),
+
+        tabPanel(
+          title = "BOLSA FAMÍLIA",
+          icon = icon("chart-line"),
+        ),
+
+        tabPanel(
+          title = "LUZ PARA TODOS",
+          icon = icon("chart-line"),
+        )
+      ),
       valueBoxOutput(ns("total_bolsas"), width = 4),
       valueBoxOutput(ns("total_universidades"), width = 4),
       valueBoxOutput(ns("percentual_integral"), width = 4)
@@ -52,10 +71,10 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados){
 
     # --- KPIs (ValueBoxes) ---
     output$total_bolsas <- renderValueBox({
-      # Usamos o reativo passado como argumento
+
       num <- nrow(dados_filtrados())
 
-      # Pega os filtros para o subtítulo
+
       filtros <- filtros_selecionados()
 
       filtros_ativos <- c()

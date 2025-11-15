@@ -10,7 +10,7 @@
 #' @noRd
 app_server <- function( input, output, session ) {
 
-  # --- 1. Conexão Segura com o Banco de Dados (Permanece aqui) ---
+  #Database connection
   tryCatch(
     {
       db_config <- app_config("database")
@@ -33,7 +33,7 @@ app_server <- function( input, output, session ) {
     pool::poolClose(con)
   })
 
-  # --- 2. MÓDULOS ---
+  #MODULES
 
   # Chama o módulo de filtros e armazena os filtros reativos que ele RETORNA
   filtros_selecionados <- mod_filtros_server("filtros_1", con = con)
@@ -59,6 +59,57 @@ app_server <- function( input, output, session ) {
      "
     dbGetQuery(con, query)
   })
+
+  dadosbolsafamilia <- reactive({
+
+    query <- "SELECT
+                bp.id_familias,
+                ba.ano_beneficio,
+                bfi.estado,
+                bfi.codigo_ibge,
+                bp.qtd_ben_bpi,
+                brc.qtd_ben_brc,
+                brc.qtd_ben_bco,
+                bsf.qtd_ben_bvg,
+                bsf.qtd_ben_bvn,
+                bsf.qtd_ben_bva,
+                bsf.qtd_ben_bv,
+                bsf.qtd_ben_bf,
+                bvs.qtd_ben_bv,
+                bvs.qtd_ben_bva,
+                bvs.qtd_ben_bvbva
+              FROM
+                benef_primeirainfancia bp
+              LEFT JOIN beneficio_ano ba ON ba.id_familias = bp.id_familias
+              LEFT JOIN bolsa_familia_ibge bfi ON bfi.id_familias = bp.id_familias
+              LEFT JOIN benef_renda_complementar brc ON brc.id_familias = bp.id_familias
+              LEFT JOIN benef_somafamiliares bsf ON bsf.id_familias = bp.id_familias
+              LEFT JOIN benef_variaveis_soma bvs ON bvs.id_familias = bp.id_familias"
+
+    dbGetQuery(con,query)
+  })
+
+  dadosluzpt <- reactive({
+
+    query <- "SELECT
+                a.id_beneficiarios,
+                a.mes_atendimento,
+                a.ano_atendimento,
+                a.ano_homologacao,
+                db.qtd_domicilios,
+                eb.estado,
+                pb.programa
+              FROM
+                luz_ano a
+              LEFT JOIN luz_domicilios_beneficiarios db on a.id_beneficiarios = db.id_beneficiarios
+              LEFT JOIN luz_estado_beneficiarios eb on a.id_beneficiarios = eb.id_beneficiarios
+              LEFT JOIN luz_programa_beneficiarios pb on a.id_beneficiarios = pb.id_beneficiarios
+"
+    dbGetQuery(con,query)
+  })
+
+
+
 
   # Este reativo agora depende do reativo retornado pelo módulo de filtros
   dadosFiltrados <- reactive({
@@ -92,8 +143,9 @@ app_server <- function( input, output, session ) {
 
   # Passa (apenas) os dados filtrados para o módulo de tabela
   mod_dados_brutos_server("dados_brutos_1",
-                          dados_filtrados = dadosFiltrados)
+                          dados_filtrados = dadosFiltrados,
+                          dados_luz = dadosluzpt,
+                          dados_bf = dadosbolsafamilia)
 
-  # FIM DO APP_SERVER
-  # Note como ele ficou limpo: conecta, chama módulos, prepara dados, chama mais módulos.
+
 }
