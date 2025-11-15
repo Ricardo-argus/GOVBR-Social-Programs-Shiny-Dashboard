@@ -27,28 +27,21 @@ mod_dados_brutos_ui <- function(id){
             tabPanel(
               title = "BOLSA FAMÍLIA",
               icon = icon("table"),
-
-
-              h4("Tabela a ser Preenchida."),
-              p("Adicionar dados dos Beneficiários do Bolsa Família."),
-              verbatimTextOutput(ns("resumo_exemplo"))
+              DT::dataTableOutput(ns("bolsafamilia")),
             ),
 
-          tabPanel(
+            tabPanel(
             title = "Luz Para Todos",
             icon = icon("table"),
+            DT::dataTableOutput(ns("luzpt"))
 
-            h4("Tabela a ser preenchida."),
-            p("Adicionar dados dos Domicílios atendidos pelo Luz para Todos."),
-            verbatimTextOutput(ns("exemplo_resumo"))
-          )
+          ),
 
           )
-
 
         )
-      )
     )
+  )
 }
 #' mod_dados_brutos Server Function
 #'
@@ -59,7 +52,7 @@ mod_dados_brutos_ui <- function(id){
 #' @import DT
 #' @import dplyr
 #' @noRd
-mod_dados_brutos_server <- function(id, dados_filtrados){
+mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -80,5 +73,38 @@ mod_dados_brutos_server <- function(id, dados_filtrados){
         class = "stripe hover"
       )
     })
+
+    output$luzpt <- DT::renderDataTable({
+      df <- dados_luz()
+      req(nrow(df) > 0)
+      DT::datatable(
+        df,
+        filter = 'top',
+        options = list(
+          pageLength = 10,
+          scrollX = TRUE,
+          language = list(url = '//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json')
+        ),
+        rownames = FALSE,
+        class = "stripe hover"
+      )
+    })
+
+    output$bolsafamilia <- DT::renderDataTable({
+      df <- dados_bf()
+      req(nrow(df) > 0)
+      DT::datatable(
+        df,
+        filter = 'top',
+        options = list(
+          pageLength = 10,
+          scrollX = TRUE,
+          language = list(url = '//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json')
+        ),
+        rownames = FALSE,
+        class = "stripe hover"
+      )
+    })
+
   })
 }
