@@ -76,8 +76,7 @@ app_ui <- function(request) {
     )
 }
 
-# -----------------------------------------------------------------
-# O ARQUIVO golem_add_external_resources() NÃO MUDA
+
 # -----------------------------------------------------------------
 #' @import shiny
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
