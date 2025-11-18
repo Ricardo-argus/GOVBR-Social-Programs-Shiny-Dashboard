@@ -67,6 +67,17 @@ app_ui <- function(request) {
                   # 3. CHAMADA DA UI DO MÓDULO DE DADOS BRUTOS
                   # Damos um ID único: "dados_brutos_1"
                   mod_dados_brutos_ui("dados_brutos_1")
+
+
+
+          )
+        ),
+
+        fluidRow(
+          column(
+            width = 12,
+            #Função footer
+            utils_footer()
           )
         )
       )
