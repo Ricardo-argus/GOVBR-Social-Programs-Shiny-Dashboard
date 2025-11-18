@@ -44,45 +44,36 @@ app_ui <- function(request) {
         br(), br(),
 
         tags$div(
-          style = "color: white; background-color: #A9A9A9; padding: 15px; border-radius: 10px; text-align: center;",
-          icon("project-diagram"),
-          tags$h4("RShiny Golem Application Project"),
-          tags$p("Developed by Hernandes"),
-          tags$p("Guarulhos 2025")
+          style = "color: white; background-color: #A9A9A9; padding: 20px; border-radius: 10px; text-align: center;",
+          tags$h4("Conecte-se comigo"),
+          tags$a(
+            href = "https://github.com/ricardo-argus", target = "_blank",
+            title = "Acesse meu repositorio no Github",
+            icon("github", class = "fa-2x social-icon github-icon"),
+            style = "margin-right: 15px; color: white;"
+          ),
+          tags$a(
+            href = "https://www.linkedin.com/in/ricardo-hernandes-05b93218a/", target = "_blank",
+            title = "Veja meu perfil no linkedIn",
+            icon("linkedin", class = "fa-2x social-icon linkedin-icon"),
+            style = "color: white;"
+          )
         )
       ),
 
       dashboardBody(
-        tabItems(
-          # Aba 1: Visão Geral
-          tabItem(tabName = "overview",
-
-                 #Call module overview ui
-                  mod_overview_ui("overview_1")
+        tagList(
+          tabItems(
+            tabItem(tabName = "overview", mod_overview_ui("overview_1")),
+            tabItem(tabName = "raw_data", mod_dados_brutos_ui("dados_brutos_1"))
           ),
-
-          # Aba 2: Tabela de Dados Brutos
-          tabItem(tabName = "raw_data",
-
-                  # 3. CHAMADA DA UI DO MÓDULO DE DADOS BRUTOS
-                  # Damos um ID único: "dados_brutos_1"
-                  mod_dados_brutos_ui("dados_brutos_1")
-
-
-
-          )
-        ),
-
-        fluidRow(
-          column(
-            width = 12,
-            #Função footer
-            utils_footer()
+          fluidRow(
+            column(width = 12, utils_footer())
+            )
           )
         )
       )
     )
-  )
 }
 
 # -----------------------------------------------------------------
