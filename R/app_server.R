@@ -131,5 +131,8 @@ app_server <- function( input, output, session ) {
                           dados_luz = dadosluzpt,
                           dados_bf = dadosbolsafamilia)
 
+  mod_contato_mod_server("contatos_1")
 
+
+  mod_glossario_server("glossario_1")
 }
