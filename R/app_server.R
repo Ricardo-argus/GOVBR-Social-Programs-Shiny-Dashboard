@@ -132,7 +132,7 @@ app_server <- function( input, output, session ) {
                           dados_bf = dadosbolsafamilia,
                           con = con)
 
-  mod_contato_mod_server("contatos_1")
+  mod_contato_mod_server("contatos_1", con = con)
 
 
   mod_glossario_server("glossario_1")

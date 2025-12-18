@@ -43,7 +43,7 @@ mod_contato_mod_ui <- function(id) {
 #' contato_mod Server Functions
 #'
 #' @noRd
-mod_contato_mod_server <- function(id){
+mod_contato_mod_server <- function(id,con){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
@@ -69,11 +69,27 @@ mod_contato_mod_server <- function(id){
     })
 
     observeEvent(input$enviar, {
+
+      if(input$nome == ""|| input$email == "" || input$mensagem == ""){
+        showModal(modalDialog(
+          title = "Erro",
+          'Por favor, preencha todos os campos antes de enviar.',
+          easyClose = TRUE
+        ))
+      }else{
+
+      dbExecute(con,
+                "INSERT INTO visitantes (nome,email,mensagem) VALUES (?,?,?)",
+                params = list(input$nome, input$email, input$mensagem)
+                )
+
+
       showModal(modalDialog(
         title = "Mensagem Enviada!",
         "Obrigado pelo contato, retornaremos em breve.",
         easyClose = TRUE
       ))
+      }
     })
   })
 }
