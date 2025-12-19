@@ -94,7 +94,37 @@ mod_dados_brutos_ui <- function(id){
               )
             ),
 
-            DT::dataTableOutput(ns("bolsafamilia"))
+            DT::dataTableOutput(ns("bolsafamilia")),
+
+            fluidRow(
+            column(4,
+                   div(style = "max-height: 300px; overflow-y: auto;",
+                       selectizeInput(ns("id_familias"), "Selecione o Id da familia atendida:", choices = NULL)
+                   )
+            ),
+            column(4,
+                   div(style = "max-height: 300px; overflow-y: auto;",
+                       selectizeInput(ns("coluna_alvo_bolsafm"), "Coluna a ser alterada:", choices = NULL, multiple = FALSE,
+                                      options = list(selectOnTab = TRUE, openOnFocus = TRUE, closeAfterSelect = TRUE))
+                   )
+            ),
+            column(4,
+                   div(style = "max-height: 300px; overflow-y: auto;",
+                       selectizeInput(ns("valor_novo_bolsafm"), "Novo Valor para Coluna Selecionada:", choices = NULL, multiple = FALSE)
+                   )
+            )
+          ),
+
+          actionButton(ns("atualizar_valor_bolsafm"), "Atualizar Valores", icon = icon("sync"), class = "btn-primary"),
+
+          tags$style(HTML("
+              .selectize-dropdown-content {
+                max-height: 300px;
+                overflow-y: auto;
+                background-color: white;
+                color: black;
+              }
+            "))
           ),
 
           # LUZ PARA TODOS
@@ -117,12 +147,42 @@ mod_dados_brutos_ui <- function(id){
               )
             ),
 
-            DT::dataTableOutput(ns("luzpt"))
+            DT::dataTableOutput(ns("luzpt")),
+
+            fluidRow(
+              column(4,
+                     div(style = "max-height: 300px; overflow-y: auto;",
+                         selectizeInput(ns("id_beneficiarios"), "Selecione o Id da familia atendida:", choices = NULL)
+                     )
+              ),
+              column(4,
+                     div(style = "max-height: 300px; overflow-y: auto;",
+                         selectizeInput(ns("coluna_alvo_luzpt"), "Coluna a ser alterada:", choices = NULL, multiple = FALSE,
+                                        options = list(selectOnTab = TRUE, openOnFocus = TRUE, closeAfterSelect = TRUE))
+                     )
+              ),
+              column(4,
+                     div(style = "max-height: 300px; overflow-y: auto;",
+                         selectizeInput(ns("valor_novo_luzpt"), "Novo Valor para Coluna Selecionada:", choices = NULL, multiple = FALSE)
+                     )
+              )
+            ),
+
+            actionButton(ns("atualizar_valor_luzpt"), "Atualizar Valores", icon = icon("sync"), class = "btn-primary"),
+
+            tags$style(HTML("
+              .selectize-dropdown-content {
+                max-height: 300px;
+                overflow-y: auto;
+                background-color: white;
+                color: black;
+              }
+            "))
+            )
           )
         )
       )
     )
-  )
 }
 #' mod_dados_brutos Server Function
 #'
@@ -240,6 +300,61 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
       )
     })
 
+    coluna_tabela_map_luzpt <- list(
+      id_beneficiarios   = "luz_ano",
+      mes_atendimento    = "luz_ano",
+      ano_atendimento    = "luz_ano",
+      ano_homologacao    = "luz_ano",
+      qtd_domicilios     = "luz_domicilios_beneficiarios",
+      estado             = "luz_estado_beneficiarios",
+      programa           = "luz_programa_beneficiarios"
+    )
+
+
+
+    #atualiza tabela prouni
+    observe({
+      req(nrow(dados_luz()) > 0)
+      ids <- dados_luz()$id_beneficiarios
+      ids<- unique(na.omit(ids))
+      updateSelectizeInput(session, "id_beneficiarios", choices = ids, server=TRUE)
+    })
+
+    observe({
+      df <- dados_luz()
+      req(nrow(df) > 0)
+      updateSelectizeInput(session, "coluna_alvo_luzpt", choices = names(coluna_tabela_map_luzpt), server = TRUE)
+    })
+
+    observeEvent(input$coluna_alvo_luzpt, {
+      df <- dados_luz()
+      req(input$coluna_alvo_luzpt %in% names(df))
+      valores <- unique(na.omit(df[[input$coluna_alvo_luzpt]]))
+      updateSelectizeInput(session, "valor_novo_luzpt", choices = valores, server = TRUE)
+
+    })
+
+
+    observeEvent(input$atualizar_valor_luzpt, {
+      req(input$id_beneficiarios, input$coluna_alvo_luzpt, input$valor_novo_luzpt)
+
+      tabela_luzpt <- coluna_tabela_map_luzpt[[input$coluna_alvo_luzpt]]
+
+      tabela_sql_luzpt <- DBI::dbQuoteIdentifier(con,tabela_luzpt)
+      coluna_sql_luzpt <- DBI::dbQuoteIdentifier(con, input$coluna_alvo_luzpt)
+
+
+      query <- paste0("UPDATE prouni_bolsas.", tabela_sql_luzpt,
+                      "SET ", coluna_sql_luzpt, " = '", input$valor_novo_luzpt,
+                      "' WHERE id_beneficiarios = ", input$id_beneficiarios)
+
+      DBI::dbExecute(con,query)
+
+      showNotification(
+        paste0("Tabela ",tabela_luzpt," coluna ", input$coluna_alvo_luzpt, " atualizada para ", input$valor_novo_luzpt, " no cadastro da familia ",input$id_beneficiarios,"!"),
+        type = 'message')
+    })
+
 
     output$bolsafamilia <- DT::renderDataTable({
       df <- dados_bf()
@@ -256,6 +371,70 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
         rownames = FALSE,
         class = "stripe hover"
       )
+    })
+
+    coluna_tabela_map_bolsafm <- list(
+      id_familias         = "benef_primeirainfancia",
+      ano_beneficio       = "beneficio_ano",
+      estado              = "bolsa_familia_ibge",
+      codigo_ibge         = "bolsa_familia_ibge",
+      qtd_ben_bpi         = "benef_primeirainfancia",
+      qtd_ben_brc         = "benef_renda_complementar",
+      qtd_ben_bco         = "benef_renda_complementar",
+      qtd_ben_bvg         = "benef_somafamiliares",
+      qtd_ben_bvn         = "benef_somafamiliares",
+      qtd_ben_bva         = "benef_somafamiliares",
+      qtd_ben_bv          = "benef_somafamiliares",
+      qtd_ben_bf          = "benef_somafamiliares",
+      qtd_ben_bv_bvs      = "benef_variaveis_soma",
+      qtd_ben_bva_bvs     = "benef_variaveis_soma",
+      qtd_ben_bvbva       = "benef_variaveis_soma"
+    )
+
+
+
+
+    #atualiza tabela bolsafamilia
+    observe({
+      req(nrow(dados_bf()) > 0)
+      ids <- dados_bf()$id_familias
+      ids<- unique(na.omit(ids))
+      updateSelectizeInput(session, "id_familias", choices = ids, server=TRUE)
+    })
+
+    observe({
+      df <- dados_bf()
+      req(nrow(df) > 0)
+      updateSelectizeInput(session, "coluna_alvo_bolsafm", choices = names(coluna_tabela_map_bolsafm), server = TRUE)
+    })
+
+    observeEvent(input$coluna_alvo_bolsafm, {
+      df <- dados_bf()
+      req(input$coluna_alvo_bolsafm %in% names(df))
+      valores <- unique(na.omit(df[[input$coluna_alvo_bolsafm]]))
+      updateSelectizeInput(session, "valor_novo_bolsafm", choices = valores, server = TRUE)
+
+    })
+
+
+    observeEvent(input$atualizar_valor_bolsafm, {
+      req(input$id_familias, input$coluna_alvo_bolsafm, input$valor_novo_bolsafm)
+
+      tabela_bolsafm <- coluna_tabela_map_bolsafm[[input$coluna_alvo_bolsafm]]
+
+      tabela_sql_bolsafm <- DBI::dbQuoteIdentifier(con,tabela_bolsafm)
+      coluna_sql_bolsafm <- DBI::dbQuoteIdentifier(con, input$coluna_alvo_bolsafm)
+
+
+      query <- paste0("UPDATE prouni_bolsas.", tabela_sql_bolsafm,
+                      "SET ", coluna_sql_bolsafm, " = '", input$valor_novo_bolsafm,
+                      "' WHERE id_familias = ", input$id_familias)
+
+      DBI::dbExecute(con,query)
+
+      showNotification(
+        paste0("Tabela ",tabela_bolsafm," coluna ", input$coluna_alvo_bolsafm, " atualizada para ", input$valor_novo_bolsafm, " no cadastro da familia ",input$id_familias,"!"),
+        type = 'message')
     })
 
   })

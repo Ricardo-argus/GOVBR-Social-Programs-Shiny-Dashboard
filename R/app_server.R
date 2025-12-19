@@ -22,6 +22,10 @@ app_server <- function( input, output, session ) {
   # Chama o módulo de filtros e armazena os filtros reativos que ele RETORNA
   filtros_selecionados <- mod_filtros_server("filtros_1", con = con)
 
+  observeEvent(input$refresh_app, {
+    session$sendCustomMessage("refreshApp", "reload")
+  })
+
 
   # --- 3. DADOS REATIVOS
 
