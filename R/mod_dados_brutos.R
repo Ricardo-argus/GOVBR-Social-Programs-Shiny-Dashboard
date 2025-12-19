@@ -16,111 +16,111 @@ mod_dados_brutos_ui <- function(id){
         tabsetPanel(
           id = ns("tabset_dados"),
 
+          # PROUNI
           tabPanel(
             title = "PROUNI",
             icon = icon("table"),
 
             fluidRow(
               column(4,
-            selectInput(ns("uf"), "Selecione a UF: ", choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
-                                                                  "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
-                                                                  "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
-                        selected = "Todos"
+                     selectInput(ns("uf"), "Selecione a UF: ",
+                                 choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
+                                             "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
+                                             "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
+                                 selected = "Todos")
+              ),
+              column(4,
+                     selectInput(ns("raca"), "Raça do Beneficiário: ",
+                                 choices = c("Todas","Branca", "Parda", "Preta", "Amarela", "Nao Informada", "Indigena"),
+                                 selected = "Todas")
+              ),
+              column(4,
+                     selectInput(ns("ano"), "Ano da Bolsa: ",
+                                 choices = c(2018,2019,2020),
+                                 selected = "2020")
               )
             ),
-
-              column(4,
-                     selectInput(ns("raca"), "Raça do Beneficiário: ", choices = c("Todas","Branca", "Parda", "Preta", "Amarela", "Nao Informada", "Indigena"),
-                                 selected = "Todas"
-                    )
-                  ),
-              column(4,
-                   selectInput(ns("ano"), "Ano da Bolsa: ", choices = c(2018,2019,2020),
-                               selected = "2020"
-                   )
-                  )
-                ),
 
             DT::dataTableOutput(ns("PROUNI")),
 
             fluidRow(
-              column(6,
-                  div(style = "max-height: 350px; overflow-y: auto;",
+              column(4,
+                  div(style = "max-height: 300px; overflow-y: auto;",
                      selectizeInput(ns("id_bolsista"), "Selecione o Id do Bolsista:", choices = NULL)
-                        )
-                     ),
-              column(6,
-                  div(style = "max-height: 350px; overflow-y: auto;",
-                     selectizeInput(ns("novo_turno"), "Novo Turno:", choices = c("MATUTINO", "VESPERTINO", "NOTURNO", "CURSO A DISTANCIA"),
-                                    options = list( selectOnTab = TRUE,   # permite selecionar ao usar Tab
-                                                    openOnFocus = TRUE,   # abre automaticamente ao focar
-                                                    closeAfterSelect = TRUE # fecha após escolher
-                                    )
-                                  )
+                  )
+              ),
+              column(4,
+                  div(style = "max-height: 300px; overflow-y: auto;",
+                     selectizeInput(ns("coluna_alvo"), "Coluna a ser alterada:", choices = NULL, multiple = FALSE,
+                                    options = list(selectOnTab = TRUE, openOnFocus = TRUE, closeAfterSelect = TRUE))
                      )
+              ),
+              column(4,
+                  div(style = "max-height: 300px; overflow-y: auto;",
+                     selectizeInput(ns("valor_novo"), "Novo Valor para Coluna Selecionada:", choices = NULL, multiple = FALSE)
+                  )
               )
             ),
-            actionButton(ns("atualizar_turno"), "Atualizar Turno", icon = icon("sync"), class = "btn-primary"),
+
+            actionButton(ns("atualizar_valor"), "Atualizar Valores", icon = icon("sync"), class = "btn-primary"),
 
             tags$style(HTML("
-                .selectize-dropdown-content {
-                  max-height: 300px;
-                  overflow-y: auto;
-                  background-color: white;
-                  color: black;
-                }"
-                            )),
+              .selectize-dropdown-content {
+                max-height: 300px;
+                overflow-y: auto;
+                background-color: white;
+                color: black;
+              }
+            "))
           ),
 
-            tabPanel(
-              title = "BOLSA FAMÍLIA",
-              icon = icon("table"),
+          # BOLSA FAMÍLIA
+          tabPanel(
+            title = "BOLSA FAMÍLIA",
+            icon = icon("table"),
 
-              fluidRow(
-                column(4,
-                       selectInput(ns("estado"), "Selecione o Estado: ", choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
-                                                                             "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
-                                                                             "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
-                                   selected = "Todos"
-                  )
-                ),
-                column(4,
-                       selectInput(ns("estado"), "Selecione o ano de concessão do beneficio: ", choices = c(2023,2024,2025),
-                                   selected = "Todos"
-                       )
-                )
+            fluidRow(
+              column(4,
+                     selectInput(ns("estado"), "Selecione o Estado:",
+                                 choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
+                                             "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
+                                             "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
+                                 selected = "Todos")
               ),
-
-              DT::dataTableOutput(ns("bolsafamilia")),
+              column(4,
+                     selectInput(ns("ano_bf"), "Ano de concessão do benefício:",
+                                 choices = c(2023,2024,2025),
+                                 selected = "Todos")
+              )
             ),
 
-            tabPanel(
+            DT::dataTableOutput(ns("bolsafamilia"))
+          ),
+
+          # LUZ PARA TODOS
+          tabPanel(
             title = "Luz Para Todos",
             icon = icon("table"),
 
             fluidRow(
               column(4,
-                     selectInput(ns("estado"), "Selecione o Estado: ", choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
-                                                                               "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
-                                                                               "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
-                                 selected = "Todos"
-                )
+                     selectInput(ns("estado"), "Selecione o Estado:",
+                                 choices = c("Todos","AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
+                                             "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
+                                             "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"),
+                                 selected = "Todos")
               ),
-
               column(4,
-                     selectInput(ns("mes_atendimento"), "Selecione o mês do atendimento: ", choices = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro")
-
-                  )
+                     selectInput(ns("mes_atendimento"), "Selecione o mês do atendimento:",
+                                 choices = c("Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                                             "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"))
               )
             ),
 
             DT::dataTableOutput(ns("luzpt"))
-
-          ),
-
           )
-
         )
+      )
     )
   )
 }
@@ -165,6 +165,21 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
       )
     })
 
+    coluna_tabela_map <- list(
+      id_bolsista            = "dados_bolsistas",
+      ANO_CONCESSAO_BOLSA    = "dados_bolsistas",
+      SEXO_BENEFICIARIO      = "dados_bolsistas",
+      RACA_BENEFICIARIO      = "dados_bolsistas",
+      UF_BENEFICIARIO        = "UF_bolsas",
+      UNIVERSIDADE_BOLSA     = "bolsas_universidades",
+      TIPO_BOLSA             = "tipo_bolsa",
+      MODALIDADE_ENSINO_BOLSA= "modalidade_bolsa",
+      TURNO_BOLSA            = "turno_bolsa",
+      CURSO_BOLSISTA         = "curso_bolsista"
+    )
+
+
+
     #atualiza tabela prouni
     observe({
       req(nrow(dados_filtrados()) > 0)
@@ -173,17 +188,39 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
       updateSelectizeInput(session, "id_bolsista", choices = ids, server=TRUE)
     })
 
-    observeEvent(input$atualizar_turno, {
-      req(input$id_bolsista, input$novo_turno)
+    observe({
+      df <- dados_filtrados()
+      req(nrow(df) > 0)
+      updateSelectizeInput(session, "coluna_alvo", choices = names(coluna_tabela_map), server = TRUE)
+    })
+
+    observeEvent(input$coluna_alvo, {
+      df <- dados_filtrados()
+      req(input$coluna_alvo %in% names(df))
+      valores <- unique(na.omit(df[[input$coluna_alvo]]))
+      updateSelectizeInput(session, "valor_novo", choices = valores, server = TRUE)
+
+    })
 
 
-          query <- sprintf("UPDATE prouni_bolsas.turno_bolsa SET TURNO_BOLSA = '%s' WHERE id_bolsista = %s",
-                           input$novo_turno, input$id_bolsista
-          )
+    observeEvent(input$atualizar_valor, {
+      req(input$id_bolsista, input$coluna_alvo, input$valor_novo)
+
+      tabela <- coluna_tabela_map[[input$coluna_alvo]]
+
+      tabela_sql <- DBI::dbQuoteIdentifier(con,tabela)
+      coluna_sql <- DBI::dbQuoteIdentifier(con, input$coluna_alvo)
+
+
+          query <- paste0("UPDATE prouni_bolsas.", tabela_sql,
+                          "SET ", coluna_sql, " = '", input$valor_novo,
+                          "'WHERE id_bolsista = ", input$id_bolsista)
 
           DBI::dbExecute(con,query)
 
-          showNotification("Turno atualizado com sucesso!", type = 'message')
+          showNotification(
+            paste0("Tabela ",tabela," coluna ", input$coluna_alvo, " atualizada para ", input$valor_novo, " no bolsista ",input$id_bolsista,"!"),
+            type = 'message')
     })
 
 
