@@ -127,7 +127,7 @@ mod_overview_ui <- function(id){
 #' @import dplyr
 #' @import magrittr
 #' @noRd
-mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con){
+mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, dados_luz ){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
 
@@ -278,9 +278,156 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con){
       )
     })
 
+    #kpi min_estado
+
+    output$min_municipio <- shinydashboard::renderValueBox({
+      query <- "
+    SELECT  minimo.estado FROM
+    (SELECT
+        bfi.estado,
+            (COALESCE(SUM(bp.qtd_ben_bpi), 0)
+            + COALESCE(SUM(brc.qtd_ben_brc), 0)
+            + COALESCE(SUM(brc.qtd_ben_bco), 0)
+            + COALESCE(SUM(bsf.qtd_ben_bvg), 0)
+            + COALESCE(SUM(bsf.qtd_ben_bvn), 0)
+            + COALESCE(SUM(bsf.qtd_ben_bva), 0)
+            + COALESCE(SUM(bsf.qtd_ben_bv), 0)
+            + COALESCE(SUM(bsf.qtd_ben_bf), 0)
+            + COALESCE(SUM(bvs.qtd_ben_bv), 0)
+            + COALESCE(SUM(bvs.qtd_ben_bva), 0)
+            + COALESCE(SUM(bvs.qtd_ben_bvbva), 0))
+            AS total_benef
+    FROM benef_primeirainfancia bp
+    LEFT JOIN beneficio_ano ba ON ba.id_familias = bp.id_familias
+    LEFT JOIN bolsa_familia_ibge bfi ON bfi.id_familias = bp.id_familias
+    LEFT JOIN benef_renda_complementar brc ON brc.id_familias = bp.id_familias
+    LEFT JOIN benef_somafamiliares bsf ON bsf.id_familias = bp.id_familias
+    LEFT JOIN benef_variaveis_soma bvs ON bvs.id_familias = bp.id_familias
+    GROUP BY bfi.estado
+    ORDER BY total_benef ASC
+    LIMIT 1) AS minimo;
+  "
+
+      df <- dbGetQuery(con, query)
+      req(nrow(df) > 0)
+
+      estado_min <- df$estado[1]
+
+      shinydashboard::valueBox(
+        value = estado_min,
+        subtitle = "Estado com Menor Número de Beneficiários",
+        icon = shiny::icon("arrow-down"),
+        color = "red"
+      )
+    })
 
 
-    #inserir graficos get_luz_pt e gráficos bolsafm
+    output$bpi_topfive <- plotly::renderPlotly({
+      query <- "
+    SELECT top.estado, top.total_bpi FROM (
+      SELECT SUM(bp.qtd_ben_bpi) as total_bpi, bf.estado
+      FROM bolsa_familia_ibge bf
+      LEFT JOIN benef_primeirainfancia bp ON bp.id_familias = bf.id_familias
+      GROUP BY bf.estado
+      ORDER BY total_bpi DESC
+      LIMIT 5
+    ) top;
+  "
+
+      df <- dbGetQuery(con, query)
+      req(nrow(df) > 0)
+
+      p <- ggplot(df, aes(x = reorder(estado, total_bpi),
+                          y = total_bpi,
+                          fill = estado)) +
+        geom_col(width = 0.6) +
+        geom_text(aes(label = format(total_bpi, big.mark = ".")),
+                  hjust = -0.1, color = "white", size = 4) +
+        coord_flip() +
+        labs(title = "Top 5 Estados com Mais Beneficiários\nPrimeira Infância (BPI)",
+             x = "Estado", y = "Total de Beneficiários", fill = "Estado") +
+        theme_minimal(base_size = 14) +
+        theme(
+          plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          legend.position = "bottom",
+          legend.text = element_text(color = "white"),
+          legend.title = element_text(color = "white"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major.y = element_line(color = "#555555"),
+          panel.grid.major.x = element_line(color = "#333333"),
+          panel.grid.minor = element_blank()
+        )
+
+      plotly::ggplotly(p) %>%
+        plotly::layout(
+          template = "plotly_dark",
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)",
+          margin = list(l = 150, r = 50, t = 80, b = 60),
+          legend = list(orientation = "h", x = 0.5, xanchor = "center",
+                        font = list(color = "white"))
+        )
+    })
+
+
+    output$bvg_topten <- plotly::renderPlotly({
+      query <- "
+    SELECT top.estado, top.total_bvg FROM (
+      SELECT SUM(bsf.qtd_ben_bvg) as total_bvg, bf.estado
+      FROM bolsa_familia_ibge bf
+      LEFT JOIN benef_somafamiliares bsf ON bsf.id_familias = bf.id_familias
+      GROUP BY bf.estado
+      ORDER BY total_bvg DESC
+      LIMIT 10
+    ) top;
+  "
+
+      df <- dbGetQuery(con, query)
+      req(nrow(df) > 0)
+
+      p <- ggplot(df, aes(x = reorder(estado, total_bvg),
+                          y = total_bvg,
+                          fill = estado)) +
+        geom_col(width = 0.6) +
+        geom_text(aes(label = format(total_bvg, big.mark = ".")),
+                  hjust = -0.1, color = "white", size = 4) +
+        coord_flip() +
+        labs(title = "Top 10 Estados com Mais Beneficiários\nBenefício Variável Familiar (BVG)",
+             x = "Estado", y = "Total de Beneficiários", fill = "Estado") +
+        theme_minimal(base_size = 14) +
+        theme(
+          plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          legend.position = "bottom",
+          legend.text = element_text(color = "white"),
+          legend.title = element_text(color = "white"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major.y = element_line(color = "#555555"),
+          panel.grid.major.x = element_line(color = "#333333"),
+          panel.grid.minor = element_blank()
+        )
+
+      plotly::ggplotly(p) %>%
+        plotly::layout(
+          template = "plotly_dark",
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)",
+          margin = list(l = 150, r = 50, t = 80, b = 60),
+          legend = list(orientation = "h", x = 0.5, xanchor = "center",
+                        font = list(color = "white"))
+        )
+    })
+
+
+
+
+
+    # KPI luz_pt
 
     output$total_domicilios <- renderValueBox({
       total <- fct_get_luzpt(con)$total_domicilios
@@ -310,6 +457,70 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con){
         icon = icon("home"),
         color = "yellow"
       )
+    })
+
+    output$luzpt_topfive <- plotly::renderPlotly({
+      query <- "
+    SELECT eb.estado, SUM(db.qtd_domicilios) as total_domicilios
+    FROM luz_domicilios_beneficiarios db
+    LEFT JOIN luz_estado_beneficiarios eb on db.id_beneficiarios = eb.id_beneficiarios
+    GROUP BY eb.estado
+    ORDER BY total_domicilios ASC
+    LIMIT 5;
+  "
+
+      df <- dbGetQuery(con, query)
+      req(nrow(df) > 0)
+
+      p <- ggplot(df, aes(x = reorder(estado, total_domicilios),
+                          y = total_domicilios,
+                          fill = estado)) +
+        geom_col(show.legend = FALSE) +
+        coord_flip() +
+        labs(title = "Top 5 Estados com Menos Beneficiários",
+             x = "Estado", y = "Total de Domicílios") +
+        theme_minimal()
+
+      plotly::ggplotly(p)
+    })
+
+    output$tipo_programa_luzpt <- plotly::renderPlotly({
+      query <- "
+    SELECT lpb.programa, SUM(db.qtd_domicilios) AS total_por_programa
+    FROM luz_domicilios_beneficiarios db
+    LEFT JOIN luz_programa_beneficiarios lpb
+           ON db.id_beneficiarios = lpb.id_beneficiarios
+    GROUP BY lpb.programa
+    ORDER BY total_por_programa DESC;
+  "
+
+      df <- dbGetQuery(con, query)
+      req(nrow(df) > 0)
+
+      p <- ggplot(df, aes(x = programa, y = total_por_programa, fill = programa)) +
+        geom_col(show.legend = FALSE, width = 0.6) +
+        labs(title = "Distribuição por Tipo de Programa",
+             x = "Programa", y = "Total de Domicílios") +
+        theme_minimal(base_size = 14) +
+        theme(
+          plot.title = element_text(hjust = 0.5, size = 12, color = "white", face = "bold"),
+          axis.title = element_text(color = "white"),
+          axis.text = element_text(color = "white"),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          panel.grid.major.x = element_blank(),              # remove grades verticais
+          panel.grid.major.y = element_line(color = "#555555"), # grades horizontais suaves
+          panel.grid.minor = element_blank()
+        )
+
+      plotly::ggplotly(p) %>%
+        plotly::layout(
+          template = "plotly_dark",
+          paper_bgcolor = "rgba(0,0,0,0)", # fundo transparente
+          plot_bgcolor = "rgba(0,0,0,0)",  # fundo transparente
+          margin = list(l = 100, r = 30, t = 60, b = 40),
+          legend = list(font = list(color = "white"))
+        )
     })
 
   })
