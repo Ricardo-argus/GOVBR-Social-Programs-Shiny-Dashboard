@@ -45,11 +45,11 @@ mod_contato_mod_server <- function(id,con){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
-    # Estado reativo para controlar visibilidade
+    # Control Visibility of white box
     estado <- reactiveValues(mostrar = FALSE)
 
     observeEvent(input$mostrar_info, {
-      estado$mostrar <- !estado$mostrar  # alterna entre TRUE e FALSE
+      estado$mostrar <- !estado$mostrar
     })
 
     output$info_adicional <- renderUI({

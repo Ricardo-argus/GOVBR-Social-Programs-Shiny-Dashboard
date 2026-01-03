@@ -1,7 +1,7 @@
 #' mod_dados_brutos UI Function
 #'
-#' @description UI para a aba de Dados Completos (Tabela DT).
-#' @param id O ID interno do Shiny para este módulo.
+#' @description UI for tab Dados Completos.
+#' @param id Intern Id from Shiny for this Module
 #' @import shiny
 #' @import DT
 #' @noRd
@@ -186,9 +186,9 @@ mod_dados_brutos_ui <- function(id){
 }
 #' mod_dados_brutos Server Function
 #'
-#' @description Server para a aba de Dados Completos.
-#' @param id O ID interno do Shiny para este módulo.
-#' @param dados_filtrados Um reativo com os dados já filtrados.
+#' @description Server for tab Dados Completos.
+#' @param id Intern Id from Shiny for this Module
+#' @param dados_filtrados a Reactive Filter already applied
 #' @import shiny
 #' @import DT
 #' @import dplyr
@@ -240,7 +240,7 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
 
 
 
-    #atualiza tabela prouni
+    #update table  prouni
     observe({
       req(nrow(dados_filtrados()) > 0)
       ids <- dados_filtrados()$id_bolsista
@@ -312,7 +312,7 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
 
 
 
-    #atualiza tabela prouni
+    # update table luz para todos
     observe({
       req(nrow(dados_luz()) > 0)
       ids <- dados_luz()$id_beneficiarios
@@ -394,7 +394,7 @@ mod_dados_brutos_server <- function(id, dados_filtrados, dados_luz, dados_bf, co
 
 
 
-    #atualiza tabela bolsafamilia
+    #update table bolsa familia
     observe({
       req(nrow(dados_bf()) > 0)
       ids <- dados_bf()$id_familias

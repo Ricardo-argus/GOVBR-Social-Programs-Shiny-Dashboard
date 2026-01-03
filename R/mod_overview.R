@@ -57,9 +57,9 @@ mod_overview_ui <- function(id){
           icon = icon("chart-line"),
 
           fluidRow(
-            valueBoxOutput(ns("total_familias"), width = 4), #quantidade de municipios analisados
-            valueBoxOutput(ns("total_brc"), width = 4),   # estado com maior quantidade total de beneficios renda e cidadania
-            valueBoxOutput(ns("min_municipio"), width = 4) # municipio com menor quantidade de beneficios recebidos
+            valueBoxOutput(ns("total_familias"), width = 4),
+            valueBoxOutput(ns("total_brc"), width = 4),
+            valueBoxOutput(ns("min_municipio"), width = 4)
           ),
 
           div(style = "overflow-x: auto;",
@@ -86,9 +86,9 @@ mod_overview_ui <- function(id){
           icon = icon("chart-line"),
 
           fluidRow(
-            valueBoxOutput(ns("total_domicilios"), width = 4), #quantidade de domicilios analisados
-            valueBoxOutput(ns("total_estadoluzpt"), width = 4),   # estado com maior quantidade total de beneficiarios
-            valueBoxOutput(ns("maior_anoluzpt"), width = 4) # Ano com mais beneficiarios atendidos
+            valueBoxOutput(ns("total_domicilios"), width = 4),
+            valueBoxOutput(ns("total_estadoluzpt"), width = 4),
+            valueBoxOutput(ns("maior_anoluzpt"), width = 4)
           ),
 
           div(style = "overflow-x: auto;",
@@ -210,13 +210,13 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
           panel.grid.minor = element_blank()
         )
 
-      # ATUALIZAÇÃO: Aplicar template escuro do Plotly
+
       plotly::ggplotly(p) %>%
         plotly::layout(
           template = "plotly_dark",
-          paper_bgcolor = "rgba(0,0,0,0)", # Fundo do papel transparente
-          plot_bgcolor = "rgba(0,0,0,0)",  # Fundo do gráfico transparente
-          legend = list(font = list(color = "white")) # Cor do texto da legenda
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)",
+          legend = list(font = list(color = "white"))
         )
     })
 
@@ -239,8 +239,8 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
           axis.text = element_text(color = "white"),
           plot.background = element_rect(fill = "transparent", color = NA),
           panel.background = element_rect(fill = "transparent", color = NA),
-          panel.grid.major.x = element_blank(), # Remover grades verticais
-          panel.grid.major.y = element_line(color = "#555555"), # Grades horizontais suaves
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_line(color = "#555555"),
           panel.grid.minor = element_blank()
         )
 
@@ -248,9 +248,9 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
       plotly::ggplotly(p) %>%
         plotly::layout(
           template = "plotly_dark",
-          paper_bgcolor = "rgba(0,0,0,0)", # Fundo do papel transparente
-          plot_bgcolor = "rgba(0,0,0,0)",  # Fundo do gráfico transparente
-          legend = list(font = list(color = "white")) # Cor do texto da legenda
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)",
+          legend = list(font = list(color = "white"))
         )
     })
 
@@ -346,12 +346,12 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
         coord_flip() +
         scale_y_continuous(labels = scales::label_comma(big.mark = ".", decimal.mark = ",")) +
         labs(title = "Top 5 Estados com Mais Beneficiários\nPrimeira Infância (BPI)",
-             x = "Estado", y = "Total de Beneficiários") +  # mantém apenas eixo Y
+             x = "Estado", y = "Total de Familias Atendidas") +  # mantém apenas eixo Y
         theme_minimal(base_size = 14) +
         theme(
           plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
           axis.title = element_text(color = "white"),
-          axis.text.y = element_text(color = "white"),  # mantém nomes dos estados
+          axis.text.y = element_text(color = "white"),
           axis.text.x = element_text(color = "white"),
           plot.background = element_rect(fill = "transparent", color = NA),
           panel.background = element_rect(fill = "transparent", color = NA),
@@ -366,7 +366,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
           paper_bgcolor = "rgba(0,0,0,0)",
           plot_bgcolor = "rgba(0,0,0,0)",
           margin = list(l = 150, r = 50, t = 80, b = 60),
-          showlegend = FALSE  # remove legenda abaixo do gráfico
+          showlegend = FALSE
         )
     })
 
@@ -395,7 +395,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
         coord_flip() +
         scale_y_continuous(labels = scales::label_comma(big.mark = ".", decimal.mark = ",")) +
         labs(title = "Top 10 Estados com Mais Beneficiários\nBenefício Variável Familiar (BVG)",
-             x = "Estado", y = "Total de Beneficiários") +
+             x = "Estado", y = "Total de Familias Atendidas") +
         theme_minimal(base_size = 14) +
         theme(
           plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
@@ -472,17 +472,17 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
       p <- ggplot(df, aes(x = reorder(estado, total_domicilios),
                           y = total_domicilios,
                           fill = estado)) +
-        geom_col(width = 0.6, show.legend = FALSE) +  # remove legenda de cores
+        geom_col(width = 0.6, show.legend = FALSE) +
         geom_text(aes(label = format(total_domicilios, big.mark = ".")),
                   hjust = -0.1, color = "white", size = 4) +
         coord_flip() +
         labs(title = "Top 5 Estados com Menos Beneficiários",
-             x = "Estado", y = "Total de Domicílios") +  # mantém eixo Y com nomes dos estados
+             x = "Estado", y = "Total de Domicílios") +
         theme_minimal(base_size = 14) +
         theme(
           plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
           axis.title = element_text(color = "white"),
-          axis.text.y = element_text(color = "white"),  # mantém nomes dos estados
+          axis.text.y = element_text(color = "white"),
           axis.text.x = element_text(color = "white"),
           plot.background = element_rect(fill = "transparent", color = NA),
           panel.background = element_rect(fill = "transparent", color = NA),
@@ -497,7 +497,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
           paper_bgcolor = "rgba(0,0,0,0)",
           plot_bgcolor = "rgba(0,0,0,0)",
           margin = list(l = 150, r = 50, t = 80, b = 60),
-          showlegend = FALSE  # remove legenda abaixo do gráfico
+          showlegend = FALSE
         )
     })
 
@@ -525,7 +525,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
           axis.text = element_text(color = "white"),
           plot.background = element_rect(fill = "transparent", color = NA),
           panel.background = element_rect(fill = "transparent", color = NA),
-          panel.grid.major.x = element_blank(),              # remove grades verticais
+          panel.grid.major.x = element_blank(),
           panel.grid.major.y = element_line(color = "#555555"),
           panel.grid.minor = element_blank()
         )
@@ -533,8 +533,8 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
       plotly::ggplotly(p) %>%
         plotly::layout(
           template = "plotly_dark",
-          paper_bgcolor = "rgba(0,0,0,0)", # fundo transparente
-          plot_bgcolor = "rgba(0,0,0,0)",  # fundo transparente
+          paper_bgcolor = "rgba(0,0,0,0)",
+          plot_bgcolor = "rgba(0,0,0,0)",
           margin = list(l = 100, r = 30, t = 60, b = 40),
           legend = list(font = list(color = "white"))
         )
