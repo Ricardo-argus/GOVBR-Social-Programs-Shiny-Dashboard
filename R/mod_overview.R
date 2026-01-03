@@ -266,7 +266,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
     output$total_familias <- renderValueBox({
       total <- fct_get_bolsafm(con)$total_familias
       valueBox(
-        value = format(total[[1]], big.mark = ".", decimal.mark = ","),
+        value = formatC(as.numeric(total[[1]]), format = "d", big.mark = "."),
         subtitle = "Quantidade de Municipios Analisados",
         icon = icon("home"),
         color = "purple"
@@ -435,7 +435,7 @@ mod_overview_server <- function(id, dados_filtrados, filtros_selecionados, con, 
     output$total_domicilios <- renderValueBox({
       total <- fct_get_luzpt(con)$total_domicilios
       valueBox(
-        value = total[[1]],
+        value = formatC(as.numeric(total[[1]]), format = "d", big.mark = "."),
         subtitle = "Total de Domicilios Analisados",
         icon = icon("home"),
         color = "purple"
