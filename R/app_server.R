@@ -63,8 +63,6 @@ app_server <- function( input, output, session ) {
                 bsf.qtd_ben_bva,
                 bsf.qtd_ben_bv,
                 bsf.qtd_ben_bf,
-                bvs.qtd_ben_bv,
-                bvs.qtd_ben_bva,
                 bvs.qtd_ben_bvbva
               FROM
                 benef_primeirainfancia bp

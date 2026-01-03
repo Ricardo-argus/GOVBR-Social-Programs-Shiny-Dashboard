@@ -13,7 +13,7 @@ mod_contato_mod_ui <- function(id) {
     tags$style(HTML(sprintf("#%s .well { color: black !important; }", ns("info_adicional")))),
     fluidRow(
       column(12, align = "center",
-             h2("Fale Conosco")
+             h2("Saiba mais")
       ),
       column(10, offset = 1,
              p("Este dashboard é parte de um projeto pessoal que desenvolvi com o objetivo de promover a transparência e facilitar o acesso a dados sobre programas sociais brasileiros, como PROUNI, Bolsa Família e Luz Para Todos."),
