@@ -10,11 +10,6 @@
 mod_analyses_luzpt_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    fluidRow(
-      valueBoxOutput(ns("total_domicilios"), width = 4),
-      valueBoxOutput(ns("total_estadoluzpt"), width = 4),
-      valueBoxOutput(ns("maior_anoluzpt"), width = 4)
-    ),
     div(style = "overflow-x: auto;",
         fluidRow(
           box(
@@ -39,36 +34,7 @@ mod_analyses_luzpt_server <- function(id, con){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
-    # KPI luz_pt
 
-    output$total_domicilios <- renderValueBox({
-      total <- fct_get_luzpt(con)$total_domicilios
-      valueBox(
-        value = formatC(as.numeric(total[[1]]), format = "d", big.mark = "."),
-        subtitle = "Total de Domicilios Analisados",
-        icon = icon("home"),
-        color = "purple"
-      )
-    })
-
-    output$total_estadoluzpt <- renderValueBox({
-      total <- fct_get_luzpt(con)$total_estadoluzpt
-      valueBox(
-        value = total[[1]],
-        subtitle = "Estado com Mais Domicilios atendidos",
-        icon = icon("arrow-up"),
-        color = "green"
-      )
-    })
-
-    output$maior_anoluzpt <- renderValueBox({
-      total <- fct_get_luzpt(con)$maior_anoluzpt
-      valueBox(
-        value = total[[1]],
-        subtitle = "Ano com Mais Domicilios Atendidos",
-        icon = icon("home"),
-        color = "yellow")
-    })
 
     output$luzpt_topfive <- plotly::renderPlotly({
       query <- "
@@ -98,8 +64,8 @@ mod_analyses_luzpt_server <- function(id, con){
           axis.title = element_text(color = "white"),
           axis.text.y = element_text(color = "white"),
           axis.text.x = element_text(color = "white"),
-          plot.background = element_rect(fill = "transparent", color = NA),
-          panel.background = element_rect(fill = "transparent", color = NA),
+          plot.background = element_rect(fill = "transparent", color = 'black'),
+          panel.background = element_rect(fill = "transparent", color = 'black'),
           panel.grid.major.y = element_line(color = "#555555"),
           panel.grid.major.x = element_line(color = "#333333"),
           panel.grid.minor = element_blank()
@@ -161,7 +127,7 @@ mod_analyses_luzpt_server <- function(id, con){
             orientation = "v",
             x = 1.02,
             y = 1,
-            font = list(color = "white", size = 12)
+            font = list(color = "black", size = 12)
           )
         )
     })

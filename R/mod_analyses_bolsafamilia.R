@@ -8,11 +8,6 @@
 mod_analyses_bolsafamilia_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    fluidRow(
-      valueBoxOutput(ns("total_familias"), width = 4),
-      valueBoxOutput(ns("total_brc"), width = 4),
-      valueBoxOutput(ns("min_municipio"), width = 4)
-    ),
     div(style = "overflow-x: auto;",
         fluidRow(
           box(
@@ -37,99 +32,24 @@ mod_analyses_bolsafamilia_server <- function(id, con){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
-    # KPI Bolsa Familia
-
-    #VALUEBOXES
-
-    output$total_familias <- renderValueBox({
-      total <- fct_get_bolsafm(con)$total_familias
-      valueBox(
-        value = formatC(as.numeric(total[[1]]), format = "d", big.mark = "."),
-        subtitle = "Quantidade de Municipios Analisados",
-        icon = icon("home"),
-        color = "purple"
-      )
-    })
-
-    output$total_brc <- renderValueBox({
-      total <- fct_get_bolsafm(con)$total_brc
-      valueBox(
-        value = total[[1]],
-        subtitle = "Estado com Mais Beneficio Complementar",
-        icon = icon("arrow-up"),
-        color = "green"
-      )
-    })
-
-    #kpi min_estado
-
-    output$min_municipio <- shinydashboard::renderValueBox({
-      query <- "
-    SELECT  minimo.estado FROM
-    (SELECT
-        bfi.estado,
-            (COALESCE(SUM(bp.qtd_ben_bpi), 0)
-            + COALESCE(SUM(brc.qtd_ben_brc), 0)
-            + COALESCE(SUM(brc.qtd_ben_bco), 0)
-            + COALESCE(SUM(bsf.qtd_ben_bvg), 0)
-            + COALESCE(SUM(bsf.qtd_ben_bvn), 0)
-            + COALESCE(SUM(bsf.qtd_ben_bva), 0)
-            + COALESCE(SUM(bsf.qtd_ben_bv), 0)
-            + COALESCE(SUM(bsf.qtd_ben_bf), 0)
-            + COALESCE(SUM(bvs.qtd_ben_bv), 0)
-            + COALESCE(SUM(bvs.qtd_ben_bva), 0)
-            + COALESCE(SUM(bvs.qtd_ben_bvbva), 0))
-            AS total_benef
-    FROM benef_primeirainfancia bp
-    LEFT JOIN beneficio_ano ba ON ba.id_familias = bp.id_familias
-    LEFT JOIN bolsa_familia_ibge bfi ON bfi.id_familias = bp.id_familias
-    LEFT JOIN benef_renda_complementar brc ON brc.id_familias = bp.id_familias
-    LEFT JOIN benef_somafamiliares bsf ON bsf.id_familias = bp.id_familias
-    LEFT JOIN benef_variaveis_soma bvs ON bvs.id_familias = bp.id_familias
-    GROUP BY bfi.estado
-    ORDER BY total_benef ASC
-    LIMIT 1) AS minimo;
-  "
-
-      df <- dbGetQuery(con, query)
-      req(nrow(df) > 0)
-
-      estado_min <- df$estado[1]
-
-      shinydashboard::valueBox(
-        value = estado_min,
-        subtitle = "Estado com Menor Número de Beneficiários",
-        icon = shiny::icon("arrow-down"),
-        color = "red"
-      )
-    })
-
 
     output$bpi_topfive <- plotly::renderPlotly({
-      query <- "
-    SELECT top.estado, top.total_bpi FROM (
-      SELECT SUM(bp.qtd_ben_bpi) as total_bpi, bf.estado
-      FROM bolsa_familia_ibge bf
-      LEFT JOIN benef_primeirainfancia bp ON bp.id_familias = bf.id_familias
-      GROUP BY bf.estado
-      ORDER BY total_bpi DESC
-      LIMIT 5
-    ) top;
-  "
 
-      df <- dbGetQuery(con, query)
+      # Chama a função que retorna os dados já normalizados
+      df <- fct_norm_bolsa_familia_values(con)
       req(nrow(df) > 0)
 
-      p <- ggplot(df, aes(x = reorder(estado, total_bpi),
-                          y = total_bpi,
+      # Monta o gráfico com ggplot
+      p <- ggplot(df, aes(x = reorder(estado, percentual_bpi),
+                          y = percentual_bpi,
                           fill = estado)) +
         geom_col(width = 0.6, show.legend = FALSE) +
-        geom_text(aes(label = format(total_bpi, big.mark = ".")),
+        geom_text(aes(label = sprintf("%.2f%%", percentual_bpi)),
                   hjust = -0.1, color = "white", size = 4) +
         coord_flip() +
-        scale_y_continuous(labels = scales::label_comma(big.mark = ".", decimal.mark = ",")) +
-        labs(title = "Top 5 Estados com Mais Beneficiários\nPrimeira Infância (BPI)",
-             x = "Estado", y = "Total de Familias Atendidas") +  # mantém apenas eixo Y
+        scale_y_continuous(labels = scales::label_percent(scale = 1, accuracy = 0.1)) +
+        labs(title = "Top 5 Estados com Maior Percentual\nBeneficiários Primeira Infância (BPI)",
+             x = "Estado", y = "% da População Atendida") +
         theme_minimal(base_size = 14) +
         theme(
           plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
@@ -143,6 +63,7 @@ mod_analyses_bolsafamilia_server <- function(id, con){
           panel.grid.minor = element_blank()
         )
 
+      # Converte para plotly
       plotly::ggplotly(p) %>%
         plotly::layout(
           template = "plotly_dark",

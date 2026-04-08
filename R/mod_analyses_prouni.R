@@ -10,11 +10,6 @@
 mod_analyses_prouni_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    fluidRow(
-      valueBoxOutput(ns("total_bolsas"), width = 4),
-      valueBoxOutput(ns("total_universidades"), width = 4),
-      valueBoxOutput(ns("percentual_integral"), width = 4)
-    ),
     div(style = "overflow-x: auto;",
         fluidRow(
           box(
@@ -38,60 +33,6 @@ mod_analyses_prouni_ui <- function(id) {
 mod_analyses_prouni_server <- function(id, dados_filtrados, filtros_selecionados){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
-
-    # --- KPIs (ValueBoxes) ---
-    output$total_bolsas <- renderValueBox({
-
-      num <- nrow(dados_filtrados())
-
-
-      filtros <- filtros_selecionados()
-
-      filtros_ativos <- c()
-      if (filtros$ano != "Todos") { filtros_ativos <- c(filtros_ativos, filtros$ano) }
-      if (filtros$uf != "Todos") { filtros_ativos <- c(filtros_ativos, filtros$uf) }
-      if (filtros$universidade != "Todos") { filtros_ativos <- c(filtros_ativos, filtros$universidade) }
-
-      if (length(filtros_ativos) > 0) {
-        texto_filtro <- paste(filtros_ativos, collapse = " / ")
-        subtitulo_final <- paste("Total de Bolsas:", texto_filtro)
-      } else {
-        subtitulo_final <- "Total de Bolsas (Sem Filtro)"
-      }
-
-      valueBox(
-        value = format(num, big.mark = "."),
-        subtitle = subtitulo_final,
-        icon = icon("graduation-cap"),
-        color = "purple"
-      )
-    })
-
-    output$total_universidades <- renderValueBox({
-      num <- n_distinct(dados_filtrados()$UNIVERSIDADE_BOLSA)
-      valueBox(
-        value = num,
-        subtitle = "Universidades Envolvidas",
-        icon = icon("university"),
-        color = "blue"
-      )
-    })
-
-    output$percentual_integral <- renderValueBox({
-      df <- dados_filtrados()
-      if (nrow(df) > 0) {
-        perc <- sum(df$TIPO_BOLSA == "INTEGRAL", na.rm = TRUE) / nrow(df) * 100
-        val <- paste0(format(perc, digits = 2, nsmall = 1), "%")
-      } else {
-        val <- "N/A"
-      }
-      valueBox(
-        value = val,
-        subtitle = "Percentual de Bolsas Integrais",
-        icon = icon("percent"),
-        color = "green"
-      )
-    })
 
     #plots in plotly
     output$bolsas_por_raca <- plotly::renderPlotly({

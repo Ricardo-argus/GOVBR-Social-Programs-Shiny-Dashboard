@@ -67,6 +67,19 @@ body {
   color: #f8f9fa;
 }
 
+/* --- 2. "Analyses" TAB (CHARTS): Dark Mode --- */
+.tab-pane#shiny-tab-Analyses .box {
+  background: #454d55;
+  border-top-color: #6c757d;
+  color: #f8f9fa;
+}
+.tab-pane#shiny-tab-Analyses .box-header .box-title {
+  color: #f8f9fa;
+}
+.tab-pane#shiny-tab-Analyses .box-header .btn-box-tool {
+  color: #f8f9fa;
+}
+
 /* KPIs (ValueBoxes) */
 .small-box {
   color: #ffffff !important;
