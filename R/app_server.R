@@ -125,6 +125,12 @@ app_server <- function( input, output, session ) {
                       con = con,
                       dados_luz = dadosluzpt)
 
+  mod_analyses_server("analyses_1",
+                      dados_filtrados = dadosFiltrados,
+                      filtros_selecionados = filtros_selecionados,
+                      con = con,
+                      dados_luz = dadosluzpt)
+
   mod_dados_brutos_server("dados_brutos_1",
                           dados_filtrados = dadosFiltrados,
                           dados_luz = dadosluzpt,

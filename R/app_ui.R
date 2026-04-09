@@ -29,6 +29,7 @@ app_ui <- function(request) {
         width = 400,
         sidebarMenu(
           menuItem("Visão Geral", tabName = "overview", icon = icon("dashboard")),
+          menuItem("Analises", tabName = "Analyses", icon = icon("dashboard")),
           menuItem("Dados Completos", tabName = "raw_data", icon = icon("table")),
           menuItem("Contato", tabName = "Contatos", icon = icon("envelope")),
           menuItem("Glossário", tabName = "gloss", icon = icon("book"))
@@ -96,6 +97,7 @@ app_ui <- function(request) {
           tabItems(
             tabItem(tabName = "overview", mod_overview_ui("overview_1")),
             tabItem(tabName = "raw_data", mod_dados_brutos_ui("dados_brutos_1")),
+            tabItem(tabName = "Analyses", mod_analyses_ui("analyses_1")),
             tabItem(tabName = "Contatos", mod_contato_mod_ui("contatos_1")),
             tabItem(tabName = "gloss", mod_glossario_ui("glossario_1"))
           ),
