@@ -11,12 +11,12 @@ mod_analyses_bolsafamilia_ui <- function(id) {
     div(style = "overflow-x: auto;",
         fluidRow(
           box(
-            title = "Top 5 Estados com mais Beneficiários do BPI", status = "primary", solidHeader = TRUE,
+            title = "Top 5 Estados com mais Beneficiários do BPI (Percentual)", status = "primary", solidHeader = TRUE,
             collapsible = TRUE, width = 6,
             plotlyOutput(ns("bpi_topfive"))
           ),
           box(
-            title = "10 Estados com mais Beneficiários do BVG", status = "primary", solidHeader = TRUE,
+            title = "10 Estados com mais Beneficiários do BVG (Percentual)", status = "primary", solidHeader = TRUE,
             collapsible = TRUE, width = 6,
             plotlyOutput(ns("bvg_topten"))
           )
@@ -45,7 +45,7 @@ mod_analyses_bolsafamilia_server <- function(id, con){
                           fill = estado)) +
         geom_col(width = 0.6, show.legend = FALSE) +
         geom_text(aes(label = sprintf("%.2f%%", percentual_bpi)),
-                  hjust = -0.1, color = "white", size = 4) +
+                  hjust = 1.1, color = "white", size = 4) +
         coord_flip() +
         scale_y_continuous(labels = scales::label_percent(scale = 1, accuracy = 0.1)) +
         labs(title = "Top 5 Estados com Maior Percentual\nBeneficiários Primeira Infância (BPI)",
@@ -60,7 +60,8 @@ mod_analyses_bolsafamilia_server <- function(id, con){
           panel.background = element_rect(fill = "transparent", color = NA),
           panel.grid.major.y = element_line(color = "#555555"),
           panel.grid.major.x = element_line(color = "#333333"),
-          panel.grid.minor = element_blank()
+          panel.grid.minor = element_blank(),
+          clip = "off"
         )
 
       # Converte para plotly
@@ -69,37 +70,27 @@ mod_analyses_bolsafamilia_server <- function(id, con){
           template = "plotly_dark",
           paper_bgcolor = "rgba(0,0,0,0)",
           plot_bgcolor = "rgba(0,0,0,0)",
-          margin = list(l = 150, r = 50, t = 80, b = 60),
+          margin = list(l = 150, r = 250, t = 80, b = 60),
           showlegend = FALSE
         )
     })
 
 
     output$bvg_topten <- plotly::renderPlotly({
-      query <- "
-    SELECT top.estado, top.total_bvg FROM (
-      SELECT SUM(bsf.qtd_ben_bvg) as total_bvg, bf.estado
-      FROM bolsa_familia_ibge bf
-      LEFT JOIN benef_somafamiliares bsf ON bsf.id_familias = bf.id_familias
-      GROUP BY bf.estado
-      ORDER BY total_bvg DESC
-      LIMIT 10
-    ) top;
-  "
 
-      df <- dbGetQuery(con, query)
+      df <- fct_norm_bolsa_familia_values_2(con)
       req(nrow(df) > 0)
 
-      p <- ggplot(df, aes(x = reorder(estado, total_bvg),
-                          y = total_bvg,
+      p <- ggplot(df, aes(x = reorder(estado, percentual_bvg),
+                          y = percentual_bvg,
                           fill = estado)) +
         geom_col(width = 0.6, show.legend = FALSE) +
-        geom_text(aes(label = format(total_bvg, big.mark = ".")),
+        geom_text(aes(label = sprintf("%.2f%%", percentual_bvg)),
                   hjust = -0.1, color = "white", size = 4) +
         coord_flip() +
         scale_y_continuous(labels = scales::label_comma(big.mark = ".", decimal.mark = ",")) +
-        labs(title = "Top 10 Estados com Mais Beneficiários\nBenefício Variável Familiar (BVG)",
-             x = "Estado", y = "Total de Familias Atendidas") +
+        labs(title = "Top 10 Estados com Mais Beneficiários BVG Percentual",
+             x = "Estado", y = "% Familias Atendidas (População x Beneficiarios)") +
         theme_minimal(base_size = 14) +
         theme(
           plot.title = element_text(hjust = 0.5, size = 14, color = "white", face = "bold"),
@@ -115,7 +106,7 @@ mod_analyses_bolsafamilia_server <- function(id, con){
           panel.grid.minor = element_blank()
         )
 
-      plotly::ggplotly(p) %>%  lm
+      plotly::ggplotly(p) %>%
       plotly::layout(
         template = "plotly_dark",
         paper_bgcolor = "rgba(0,0,0,0)",

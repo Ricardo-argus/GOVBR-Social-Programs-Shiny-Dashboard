@@ -18,8 +18,8 @@ fct_norm_bolsa_familia_values <- function(con){
 
   dados$percentual_bpi <- (dados$total_bpi / dados$populacao) * 100
 
-  # ordenar pelo percentual
-  dados <- dados[order(-dados$percentual_bpi), ]
+  # ordenar pelo percentual top 5
+  dados <- head(dados[order(-dados$percentual_bpi), ],5)
 
   return(dados)
 }
