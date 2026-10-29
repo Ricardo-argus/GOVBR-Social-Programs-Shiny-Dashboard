@@ -1,10 +1,3 @@
----
-title: "GOVBR Brazilian Social Programs Shiny Dashboard"
-author: "Ricardo"
-date: "2026-01-09"
-output: html_document
----
-
 # GOVBR Dashboard - Aplicativo Shiny para Programas Sociais Brasileiros
 
 Este projeto é uma aplicação web interativa desenvolvida com o framework `{golem}` em R, com o objetivo de promover transparência e facilitar o acesso aos dados de programas sociais brasileiros, como PROUNI, Bolsa Família e Luz Para Todos.
